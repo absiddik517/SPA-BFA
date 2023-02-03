@@ -18,7 +18,7 @@ This is single page application to manage a bricks field properly. All the requi
 
 
 - Add season
--- Update season
+- - Update season
 - Delete season
 - Add product
 - Edit product
