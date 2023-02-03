@@ -15,24 +15,26 @@
 This is single page application to manage a bricks field properly. All the required systems are included in this application. 
 
 #What is inside
-- [Add season]
-- [Update season]
-- [Delete season]
-- [Add product]
-- [Edit product]
-- [Delete product]
-- [Add customer]
-- [Edit customer]
-- [Delete customer]
-- [Create order]
-- [Edit order]
-- [Delete order]
-- [Create order payment]
-- [Edit order payment]
-- [Delete order payment]
-- [Create order delivery]
-- [Edit order delivery]
-- [Delete order delivery]
+
+
+- Add season
+-- Update season
+- Delete season
+- Add product
+- Edit product
+- Delete product
+- Add customer
+- Edit customer
+- Delete customer
+- Create order
+- Edit order
+- Delete order
+- Create order payment
+- Edit order payment
+- Delete order payment
+- Create order delivery
+- Edit order delivery
+- Delete order delivery
 
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
