@@ -1,0 +1,16 @@
+<div class="form-group">
+          <label for="form_input_{{! table_field !}}">{{! Table Field !}}</label>
+          <input
+            v-model="form.{{! table_field !}}"
+            :disabled="form.processing"
+            type="text"
+            name="{{! table_field !}}"
+            class="form-control"
+            :class="{ 'is-invalid': form.errors.{{! table_field !}} }"
+            id="form_input_{{! table_field !}}"
+            placeholder="{{! Page !}} {{! table field !}}"
+            aria-describedby="form_input_{{! table_field !}}-error"
+            aria-invalid="true"
+          />
+          <span id="form_input_{{! table_field !}}-error" class="error invalid-feedback">{{ form.errors.{{! table_field !}} }}</span>
+        </div>
