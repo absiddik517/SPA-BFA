@@ -1,5 +1,5 @@
 <p align="center"><a href="https://laravel.com" target="_blank">
-<img src="https://drive.google.com/uc?export=download&id=1S3_l6rmq3jB3Zu0KrG3TfdFMiJlbqtNm" width="400"></a></p>
+<img src="https://github.com/absiddik517/about/blob/main/600x600-80kb.jpg" width="400"></a></p>
 
 <p align="center">
 <a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
