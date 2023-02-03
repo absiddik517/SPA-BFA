@@ -10,17 +10,30 @@
 <a href="mailto: absiddik517@gmail'com">Mail</a>
 </p>
 
-## About Laravel
+## About the project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This is single page application to manage a bricks field properly. All the required systems are included in this application. 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+#What is inside
+- [Add season]
+- [Update season]
+- [Delete season]
+- [Add product]
+- [Edit product]
+- [Delete product]
+- [Add customer]
+- [Edit customer]
+- [Delete customer]
+- [Create order]
+- [Edit order]
+- [Delete order]
+- [Create order payment]
+- [Edit order payment]
+- [Delete order payment]
+- [Create order delivery]
+- [Edit order delivery]
+- [Delete order delivery]
+
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
