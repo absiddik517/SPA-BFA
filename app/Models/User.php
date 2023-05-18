@@ -10,6 +10,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
+use App\Models\Auth\RoleHasPermission;
+
 class User extends Authenticatable
 {
     use HasApiTokens;
@@ -25,7 +27,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'is_admin',
+        'role_id',
         'email',
         'password',
     ];
@@ -59,4 +61,26 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+    
+    /**
+     * The Role model relationship... 
+     * 
+     * @var hasOne
+     */
+     public function role(){
+       return $this->hasOne(\App\Models\Auth\Role::class);
+     }
+     
+    /**
+     * Users permission
+     * 
+     * @var array
+    **/
+    public function permissions(){
+      $permissions = RoleHasPermission::where('role_id', $this->role_id)
+                    ->join('permissions', 'permissions.id', 'role_has_permissions.permission_id')
+                    ->select('name')->get();
+      
+      return array_only_value($permissions, 'name');
+    }
 }

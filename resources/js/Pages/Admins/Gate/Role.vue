@@ -149,6 +149,7 @@
                     <Button btnDropdown type="button" @click="showModal(role)">
                       <i class="fa fa-edit"></i> Edit
                     </Button>
+                    <Link :href="route('admin.gate.permission.form', role.id)" class="dropdown-item" > <i class="fa fa-eye"></i> Permission</Link>
                   </Dropdown>
                 </td>
               </tr>

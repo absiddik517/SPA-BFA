@@ -13,5 +13,16 @@ class Order extends Model
     public $guarded = [];
     protected $perPage = 5;
     
-    protected static $hasDefault = ['user_id'];
+    protected static $hasDefault = ['user_id', 'season_id', 'date'];
+    
+    public function items(){
+      return $this->hasMany(OrderItem::class);
+    }
+    public function payments(){
+      return $this->hasMany(CustomerPayment::class);
+    }
+    public function customer(){
+      return $this->belongsTo(\App\Models\Customer::class);
+    }
+    
 }

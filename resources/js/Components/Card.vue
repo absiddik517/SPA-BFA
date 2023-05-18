@@ -1,11 +1,11 @@
 <template>
-  <div class="card" :class="varientClass" style="overflow: hidden;">
-    <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card" :class="varientClass" style="overflow: visiable;">
+    <div class="card-header d-flex justify-content-between align-items-center print-bg">
       <div class="card-title flex-1">
-        <slot name="title">CARD TITLE</slot>
+        <slot name="title">{{ title }}</slot>
       </div>
       <div class="card-tools flex-1 text-right">
-        <slot name="title_right"></slot>
+        <slot name="title_right">{{ title_right }}</slot>
       </div>
     </div>
     <div class="card-body" :class="bodyClass">
@@ -25,6 +25,17 @@
       type: String,
       default: 'light'
     },
+    title: {
+      type: String,
+      default: 'Card Title'
+    },
+    title_right:{
+      type: String,
+    },
+    bodyClass: {
+      type: String,
+      default: null
+    }
   })
   
   const varientClass = ref('');
@@ -33,6 +44,7 @@
   onMounted(() => {
     varientClass.value = `card-${props.varient}`
     bodyClass.value = props.isTable ? 'table-responsive p-0' : ''
+    bodyClass.value += props.bodyClass
   })
   
 </script>

@@ -18,14 +18,18 @@ class CustomerPaymentController extends Controller
     
     public function index(){
       $customers = Customer::select('id','name', 'address')->get();
-      $payment_types = [
-        [ "label" => "Paid sell", "value" => "1" ],
-        [ "label" => "Due payment", "value" => "2" ]
-      ];
-      $customerpayments = CustomerPaymentResource::collection($this->getFilterData(CustomerPayment::class, [
-        'like' => ["customer_id", "order_ref", "payment_type", "description", "amount"]
-      ])->withQueryString());
+      $payment_types = CustomerPayment::payment_types()->values();
+      $customerpayments = CustomerPaymentResource::collection(
+        $this->getFilterData(
+          CustomerPayment::class, 
+          [
+            'like' => ["customer_id", "order_ref", "payment_type", "description", "amount"]
+          ],
+          'customer'
+        )->withQueryString());
+      //dd($payment_types);
       $params = $this->getParams();
+      
       return inertia('Order/CustomerPayment', compact('customerpayments', 'params', 'customers', 'payment_types'));
     }
     

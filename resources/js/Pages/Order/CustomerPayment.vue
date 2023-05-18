@@ -83,7 +83,7 @@
               </Dropdown>
             </div>
           </div>
-
+          
           <table class="table table-hover y-middle">
             <div v-show="loadingTable" class="overlays">
               <span>Loading... <i class="fa fa-spin fa-spinner"></i></span>
@@ -109,11 +109,7 @@
                     "
                     :filter="filter"
                     :set-order="setOrder"
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string') filter.id.value = value;
-                      }
-                    "
+                    v-model="filter.id.value"
                   />
                 </th>
                 <th v-show="columns.customer_id">
@@ -122,12 +118,7 @@
                     label="Customer"
                     searchable
                     sortable
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string')
-                          filter.customer_id.value = value;
-                      }
-                    "
+                    v-model="filter.customer_id.value"
                     :label-click="
                       function () {
                         filter.customer_id.isActive = true;
@@ -150,12 +141,7 @@
                     label="Ref"
                     searchable
                     sortable
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string')
-                          filter.order_ref.value = value;
-                      }
-                    "
+                    v-model="filter.order_ref.value"
                     :label-click="
                       function () {
                         filter.order_ref.isActive = true;
@@ -177,13 +163,9 @@
                     field="payment_type"
                     label="Type"
                     searchable
+                    :options="payment_types"
                     sortable
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string')
-                          filter.payment_type.value = value;
-                      }
-                    "
+                    v-model="filter.payment_type.value"
                     :label-click="
                       function () {
                         filter.payment_type.isActive = true;
@@ -206,12 +188,7 @@
                     label="Description"
                     searchable
                     sortable
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string')
-                          filter.description.value = value;
-                      }
-                    "
+                    v-model="filter.description.value"
                     :label-click="
                       function () {
                         filter.description.isActive = true;
@@ -234,12 +211,7 @@
                     label="Amount"
                     searchable
                     sortable
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string')
-                          filter.amount.value = value;
-                      }
-                    "
+                    v-model="filter.amount.value"
                     :label-click="
                       function () {
                         filter.amount.isActive = true;
@@ -263,13 +235,13 @@
               <tr v-for="(customerpayment, index) in customerpayments.data">
                 <td v-show="columns.id">{{ customerpayment.id }}</td>
                 <td v-show="columns.customer_id">
-                  {{ customerpayment.customer_id }}
+                  {{ customerpayment.customer.name }}
                 </td>
                 <td v-show="columns.order_ref">
                   {{ customerpayment.order_ref }}
                 </td>
                 <td v-show="columns.payment_type">
-                  {{ customerpayment.payment_type }}
+                  <span class="badge badge-success">{{ customerpayment.payment_type }}</span>
                 </td>
                 <td v-show="columns.description">
                   {{ customerpayment.description }}
@@ -327,6 +299,7 @@
             from="order.customer.payment.customers"
             track-by="id"
             label="name"
+            @change="getOrderRefs"
           />
 
           <span id="form_input_customer_id-error" class="text-red t-sm">
@@ -335,17 +308,14 @@
         </div>
         <div class="form-group">
           <label for="form_input_order_ref">Order Ref</label>
-          <input
+          <Select
             v-model="form.order_ref"
-            :disabled="form.processing"
-            type="text"
-            name="order_ref"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.order_ref }"
+            :disabled="form.processing || !form.customer_id"
             id="form_input_order_ref"
-            placeholder="CustomerPayment order ref"
-            aria-describedby="form_input_order_ref-error"
-            aria-invalid="true"
+            placeholder="Reference"
+            :loading="isFetchingRef"
+            searchable
+            :options="order_references"
           />
           <span
             id="form_input_order_ref-error"
@@ -368,44 +338,9 @@
             >{{ form.errors.payment_type }}</span
           >
         </div>
-        <div class="form-group">
-          <label for="form_input_description">Description</label>
-          <input
-            v-model="form.description"
-            :disabled="form.processing"
-            type="text"
-            name="description"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.description }"
-            id="form_input_description"
-            placeholder="CustomerPayment description"
-            aria-describedby="form_input_description-error"
-            aria-invalid="true"
-          />
-          <span
-            id="form_input_description-error"
-            class="error invalid-feedback"
-            >{{ form.errors.description }}</span
-          >
-        </div>
-        <div class="form-group">
-          <label for="form_input_amount">Amount</label>
-          <input
-            v-model="form.amount"
-            :disabled="form.processing"
-            type="text"
-            name="amount"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.amount }"
-            id="form_input_amount"
-            placeholder="CustomerPayment amount"
-            aria-describedby="form_input_amount-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_amount-error" class="error invalid-feedback">{{
-            form.errors.amount
-          }}</span>
-        </div>
+        <Input v-model="form.description" :form="form" field="description" autocomplete="customer_payments.description"/>
+        <Input v-model="form.amount" :form="form" field="amount"/>
+        
       </form>
     </template>
 
@@ -426,6 +361,7 @@ import {
   Card,
   DeleteConfirm,
   Spinner,
+  Input,
   Dropdown,
   Pagination,
   Filterth,
@@ -450,6 +386,7 @@ export default {
     Content,
     DeleteConfirm,
     Card,
+    Input,
     Button,
     Dropdown,
     Filterth,
@@ -470,7 +407,10 @@ export default {
         description: [null, [isRequired()]],
         amount: [null, [isRequired()]],
       }),
-
+      
+      order_references: null,
+      isFetchingRef: false,
+      
       filter: reactive({
         id: {
           isActive: this.params.id != null,
@@ -518,7 +458,8 @@ export default {
       isEditing: false,
       editUrl: null,
       deleteUrl: null,
-          loadingTable: false,
+      loadingTable: false,
+      previousFilter: null
     };
   },
   watch: {
@@ -544,7 +485,7 @@ export default {
         }
         if (state.search) query.search = state.search;
         if (state.per_page) query.per_page = state.per_page;
-
+        if(this.previousFilter == query) return
         this.getcustomerpayments(query);
       }, 1000),
       deep: true,
@@ -580,6 +521,7 @@ export default {
         replace: true,
         onSuccess: () => {
           this.loadingTable = false;
+          this.previousFilter = filter;
         },
         onError: (error) => {
           this.loadingTable = false;
@@ -650,6 +592,17 @@ export default {
         this.modal.confirm.hide();
       });
     },
+    async getOrderRefs(customer_id){
+      if(! customer_id ) return 
+        this.isFetchingRef = true
+        console.log('getting data customer id = '+customer_id)
+        await axios.get(`${this.route('order.customer.refs')}?customer_id=${customer_id}`)
+        .then(response => {
+          this.order_references = response.data;
+          console.log(this.order_references)
+        });
+        this.isFetchingRef = false
+    }
   },
 };
 </script>

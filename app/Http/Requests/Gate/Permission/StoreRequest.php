@@ -24,9 +24,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-                        'name' => 'required|min:4',
-            'guard_name' => 'required|min:4',
-            'group_name' => 'required|min:4',
+            'model' => 'required',
+            'permissions' => 'required',
+            'guard_name' => 'required',
         ];
     }
 }

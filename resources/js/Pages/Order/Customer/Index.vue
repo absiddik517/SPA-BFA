@@ -98,10 +98,10 @@
                 <span v-show="columns.address" class="">
                   <i class="fa fa-map-marker"></i> {{ customer.address }}</span
                 >
-                <span v-show="columns.phone" class="font-space">
+                <span v-show="columns.phone && customer.phone" class="font-space">
                   <i class="fa fa-phone"></i> {{ customer.phone }}</span
                 >
-                <span v-show="columns.email" class="">
+                <span v-show="columns.email && customer.email" class="">
                   <i class="fa fa-envelope"></i> {{ customer.email }}</span
                 >
               </div>
@@ -128,6 +128,9 @@
                   >
                     <i class="fa fa-edit"></i> Edit
                   </Button>
+                  <Link :href="route('order.customer.trade', customer.id)" class="dropdown-item">
+                    <i class="fa fa-eye"></i> Trades
+                  </Link>
                 </Dropdown>
                 <div v-show="columns.id" class="counter">
                   <span> #{{ customer.id }} </span>
@@ -146,78 +149,10 @@
   <Modal id="order_customer_create_modal" :title="modalTitle" varient="light">
     <template #body>
       <form @submit.prevent="submit" novalidate="novalidate">
-        <div class="form-group">
-          <label for="form_input_name">Name</label>
-          <input
-            v-model="form.name"
-            :disabled="form.processing"
-            type="text"
-            name="name"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.name }"
-            id="form_input_name"
-            placeholder="Customer name"
-            aria-describedby="form_input_name-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_name-error" class="error invalid-feedback">{{
-            form.errors.name
-          }}</span>
-        </div>
-        <div class="form-group">
-          <label for="form_input_address">Address</label>
-          <input
-            v-model="form.address"
-            :disabled="form.processing"
-            type="text"
-            name="address"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.address }"
-            id="form_input_address"
-            placeholder="Customer address"
-            aria-describedby="form_input_address-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_address-error" class="error invalid-feedback">{{
-            form.errors.address
-          }}</span>
-        </div>
-        <div class="form-group">
-          <label for="form_input_phone">Phone</label>
-          <input
-            v-model="form.phone"
-            :disabled="form.processing"
-            type="text"
-            name="phone"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.phone }"
-            id="form_input_phone"
-            placeholder="Customer phone"
-            aria-describedby="form_input_phone-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_phone-error" class="error invalid-feedback">{{
-            form.errors.phone
-          }}</span>
-        </div>
-        <div class="form-group">
-          <label for="form_input_email">Email</label>
-          <input
-            v-model="form.email"
-            :disabled="form.processing"
-            type="text"
-            name="email"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.email }"
-            id="form_input_email"
-            placeholder="Customer email"
-            aria-describedby="form_input_email-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_email-error" class="error invalid-feedback">{{
-            form.errors.email
-          }}</span>
-        </div>
+        <Input v-model="form.name" :form="form" field="name"/>
+        <Input v-model="form.address" :form="form" field="address" autocomplete="customers.address"/>
+        <Input v-model="form.phone" :form="form" field="phone" autocomplete="customers.phone"/>
+        <Input v-model="form.email" :form="form" field="email" autocomplete="customers.email"/>
       </form>
     </template>
 
@@ -238,6 +173,7 @@ import {
   DeleteConfirm,
   Spinner,
   Dropdown,
+  Input,
   Pagination,
   Filterth,
   Button,
@@ -251,7 +187,7 @@ import { reactive, ref } from "vue";
 import { isRequired } from "intus/rules";
 
 export default {
-  name: "Customer",
+  name: "Index",
   layout: AdminLayout,
   components: {
     Spinner,
@@ -259,6 +195,7 @@ export default {
     Content,
     DeleteConfirm,
     Card,
+    Input,
     Button,
     Dropdown,
     Filterth,

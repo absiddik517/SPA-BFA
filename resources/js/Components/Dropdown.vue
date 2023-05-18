@@ -12,7 +12,8 @@
       </slot>
     </button>
     <div
-    class="dropdown-menu" :aria-labelledby="id"
+    class="dropdown-menu"
+    :aria-labelledby="id"
     :class="classes"
     >
       <h5 v-if="header" class="dropdown-header">{{ header }}</h5>
@@ -56,6 +57,7 @@
       type: Boolean,
       default: false
     },
+    wFull: Boolean,
   })
   
   const classes = ref('');
@@ -70,8 +72,17 @@
     if(props.toggleIcon){
       btnClasses.value += ' dropdown-toggle'
     }
+    if(props.wFull){
+      classes.value += ' w-full'
+    }
     dropdownClose.value = props.stay ? 'outside' : 'inside'
     //alert(dropdownClose.value)
   })
   
 </script>
+
+<style>
+  .w-full {
+    width: 100vw;
+  }
+</style>

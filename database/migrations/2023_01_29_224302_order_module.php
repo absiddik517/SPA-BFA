@@ -28,6 +28,8 @@ return new class extends Migration
             $table->unsignedBigInteger('season_id');
             $table->unsignedBigInteger('ref')->unique();
             $table->unsignedBigInteger('customer_id');
+            $table->integer('sub_total');
+            $table->integer('discount')->nullable();
             $table->integer('amount');
             $table->string('note')->nullable();
             $table->string('due_ref')->nullable();
@@ -43,7 +45,7 @@ return new class extends Migration
         Schema::create('customer_payments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('customer_id');
-            $table->unsignedBigInteger('order_ref')->nullable();
+            $table->unsignedBigInteger('order_id')->nullable();
             $table->enum('payment_type', [1, 2])->default(1)->comment('1: Paid sell | 2: Due Payment | [Default: Paid sell]');
             $table->string('description')->nullable();
             $table->integer('amount');
@@ -53,7 +55,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('order_ref')->references('ref')->on('orders')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('season_id')->references('id')->on('seasons')->onDelete('restrict')->onUpdate('restrict');
         });
         
@@ -68,7 +70,6 @@ return new class extends Migration
             $table->float('quantity', 7, 2);
             $table->integer('product_price');
             $table->integer('transport')->nullable();
-            $table->integer('discount')->nullable();
             $table->integer('amount');
             $table->string('destination')->nullable();
             $table->unsignedBigInteger('user_id');
@@ -83,9 +84,8 @@ return new class extends Migration
         Schema::create('order_deliveries', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('season_id');
-            $table->unsignedBigInteger('customer_id');
-            $table->unsignedBigInteger('order_ref');
-            $table->unsignedBigInteger('order_item_id')->nullable();
+            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('order_item_id');
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('dref')->unique();
             $table->float('quantity', 7, 2);
@@ -96,9 +96,8 @@ return new class extends Migration
             $table->timestamps();
             
             $table->foreign('season_id')->references('id')->on('seasons')->onDelete('restrict')->onUpdate('restrict');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('order_item_id')->references('id')->on('order_items')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('order_ref')->references('ref')->on('orders')->onUpdate('cascade')->onDelete('restrict');
             $table->foreign('product_id')->references('id')->on('products')->onUpdate('cascade')->onDelete('restrict');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict')->onUpdate('cascade');
         });

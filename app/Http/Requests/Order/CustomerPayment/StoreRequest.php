@@ -12,7 +12,7 @@ class StoreRequest extends FormRequest
   * @return bool
   */
   public function authorize() {
-    return true;
+    return gate_allows('create_customer_payment');
   }
 
   /**

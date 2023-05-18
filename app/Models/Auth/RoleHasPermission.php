@@ -9,6 +9,6 @@ class RoleHasPermission extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    public $gurded = [];
+    public $guarded = [];
     
 }

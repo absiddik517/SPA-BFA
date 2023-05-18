@@ -1,5 +1,5 @@
 <template>
-  <section class="content">
+  <section class="content print-bg">
       <div class="container-fluid">
         <slot>NOTHING THERE</slot>
       </div>

@@ -1,6 +1,6 @@
 <template>
-  <li class="nav-item" :class="{'menu-open menu-is-opening': active}">
-    <a href="#" @click="handelTreeClick" class="nav-link" :class="{'active': active}">
+  <li class="nav-item"> <!--  :class="{'menu-open menu-is-opening': active}" -->
+    <a href="#" class="nav-link"> <!-- @click="handelTreeClick" :class="{'active': active}" -->
       <slot name="title">
         <i class="nav-icon fas fa-table"></i>
         <p>
@@ -9,7 +9,7 @@
         </p>
       </slot>
     </a>
-    <ul class="nav nav-treeview" :class="{'show': active, 'hide': !active}">
+    <ul class="nav nav-treeview"> <!--  :class="{'show': active, 'hide': !active}"  -->
       <slot name="links">
         
       </slot>

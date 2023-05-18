@@ -13,7 +13,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return gate_allow_any(['update_customer', 'update_order']);
     }
 
     /**

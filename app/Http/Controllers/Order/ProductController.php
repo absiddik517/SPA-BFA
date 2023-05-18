@@ -59,11 +59,18 @@ class ProductController extends Controller
       //sleep(5);
       try{
         $product = Product::findOrFail($id);
-        $product->delete();
-        $toast = [
-          'message' => 'Product <strong>'.$product->name.'</strong> has <kbd>deleted</kbd> successfull!', 
-          'type' => 'success'
-        ];
+        if($product->is_sold()){
+          $toast = [
+            'message' => 'Product <strong>'.$product->name.'</strong> can not delete as it already has sold!', 
+            'type' => 'error'
+          ];
+        }else{
+          $product->delete();
+          $toast = [
+            'message' => 'Product <strong>'.$product->name.'</strong> has <kbd>deleted</kbd> successfull!', 
+            'type' => 'success'
+          ];
+        }
       }catch(\Exception $e){
         $toast = [
           'message' => exception_message($e), 

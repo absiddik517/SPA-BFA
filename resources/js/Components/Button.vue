@@ -3,7 +3,7 @@
   @click="handelClick" 
   :key="buttonKey" 
   :type="type" 
-  :disabled="isLoading" 
+  :disabled="disabled || isLoading" 
   class="btn" 
   :class="classes"
   >
@@ -16,7 +16,7 @@
 <script setup>
   import { onMounted, onUnmounted, ref  } from 'vue'
   import Spinner from './../Kit/Spinner.vue'
-  import helper from '@/Store/functions.js'
+  import { uniqueKey } from '@/Store/functions.js'
   import { Inertia } from '@inertiajs/inertia'
 
   const props = defineProps({
@@ -27,6 +27,10 @@
     isLoading: {
       type: Boolean,
       default: false
+    },
+    classes: {
+      type: String,
+      default: null,
     },
     hideLabel: {
       type: Boolean,
@@ -46,13 +50,17 @@
     },
     size: {
       type: String,
-      default: null
+      default: 'md'
     },
     spinner: {
       type: Boolean,
       default: true
     },
     btnDropdown: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
@@ -72,8 +80,9 @@
     }
     classesArray.push(`${props.class}`);
     classesArray.push(props.uppercase ? `text-uppercase` : '');
+    if(props.classes) classesArray.push(props.classes)
     classes.value = classesArray.join(' ');
-    buttonKey.value = helper.uniqueKey();
+    buttonKey.value = uniqueKey();
   })
   
   const handelClick = () => {

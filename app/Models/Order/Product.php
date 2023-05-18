@@ -11,4 +11,9 @@ class Product extends Model
     
     public $guarded = [];
     protected $perPage = 5;
+    
+    public function is_sold(){
+      $count = OrderItem::where('product_id', $this->id)->count();
+      return $count > 0;
+    }
 }

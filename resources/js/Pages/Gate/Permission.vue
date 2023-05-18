@@ -2,48 +2,90 @@
   <Content>
     <div class="row">
       <div class="col-12">
-        <Card :isTable="true" varient="gray">
-          <template #title> Permission <i v-show="loadingTable" class="fa fa-spinner fa-spin"></i>
+        <Card varient="gray" body-class="p-0">
+          <template #title>
+            Permission
+            <i v-show="loadingTable" class="fa fa-spinner fa-spin"></i>
           </template>
           <template #title_right>
-            <Button class="mr-2" type="button" varient="light" @click="showModal(null)">
+            <Button
+              class="mr-2"
+              type="button"
+              varient="light"
+              @click="showModal(null)"
+              v-show="hasPermissionTo('create_permission')"
+            >
               Create
             </Button>
           </template>
           <div class="row p-2 gy-2">
             <div class="col-6">
-              <input v-model="filter.search" type="text" placeholder="Search..." class="form-control" />
-              <i v-show="filter.search" @click="filter.search = null" class="fa fa-times filter-close" style="right: 15px;"></i>
+              <input
+                v-model="filter.search"
+                type="text"
+                placeholder="Search..."
+                class="form-control"
+              />
+              <i
+                v-show="filter.search"
+                @click="filter.search = null"
+                class="fa fa-times filter-close"
+                style="right: 15px"
+              ></i>
             </div>
             <div class="col-6 d-flex justify-content-end align-items-center">
               Show
-              <select v-model="filter.per_page" class="ml-2 select_per_page" id="per_page">
+              <select
+                v-model="filter.per_page"
+                class="ml-2 select_per_page"
+                id="per_page"
+              >
                 <option disabled value="null">🔻</option>
-                <option v-for="index in 100" :value="index * 5">{{ index * 5 }}</option>
+                <option v-for="index in 100" :value="index * 5">
+                  {{ index * 5 }}
+                </option>
                 <option value="all">All</option>
               </select>
-              <Dropdown animate stay header="Filter" id="filterpermissionDropdown">
+              <Dropdown
+                animate
+                stay
+                header="Filter"
+                id="filterpermissionDropdown"
+              >
                 <template #btn>
                   <i class="fa fa-filter"></i>
                 </template>
-                
+
                 <div class="px-2 py-1">
-                  <Dropdown animate stay header="Toggle Collumn" id="filterColumnToggle">
+                  <Dropdown
+                    animate
+                    stay
+                    header="Toggle Collumn"
+                    id="filterColumnToggle"
+                  >
                     <template #btn>
-                      <i class="fa fa-eye"></i>  Collumn visibility
+                      <i class="fa fa-eye"></i> Collumn visibility
                     </template>
-                    
-                    <label :for="field + 'dropdown'" class="dropdown-item" v-for="(value, field) in columns">
-                      <input v-model="columns[field]" type="checkbox" :id="field + 'dropdown'"> 
-                      {{ field.replace('_', ' ').toUpperCase() }}
+
+                    <label
+                      :for="field + 'dropdown'"
+                      class="dropdown-item"
+                      v-for="(value, field) in columns"
+                    >
+                      <input
+                        v-model="columns[field]"
+                        type="checkbox"
+                        :id="field + 'dropdown'"
+                      />
+                      {{ field.replace("_", " ").toUpperCase() }}
                     </label>
                   </Dropdown>
                 </div>
               </Dropdown>
             </div>
           </div>
-
-          <table class="table table-hover y-middle">
+          <div class="table-responsive">
+            <table class="table table-hover y-middle">
             <div v-show="loadingTable" class="overlays">
               <span>Loading... <i class="fa fa-spin fa-spinner"></i></span>
             </div>
@@ -75,7 +117,7 @@
                     "
                   />
                 </th>
-                <th v-show="columns.name">                  
+                <th v-show="columns.name">
                   <Filterth
                     field="name"
                     label="Name"
@@ -102,7 +144,7 @@
                     :set-order="setOrder"
                   />
                 </th>
-<th v-show="columns.guard_name">                  
+                <th v-show="columns.guard_name">
                   <Filterth
                     field="guard_name"
                     label="Guard Name"
@@ -110,7 +152,8 @@
                     sortable
                     @input="
                       (value) => {
-                        if (typeof value == 'string') filter.guard_name.value = value;
+                        if (typeof value == 'string')
+                          filter.guard_name.value = value;
                       }
                     "
                     :label-click="
@@ -129,7 +172,7 @@
                     :set-order="setOrder"
                   />
                 </th>
-<th v-show="columns.group_name">                  
+                <th v-show="columns.group_name">
                   <Filterth
                     field="group_name"
                     label="Group Name"
@@ -137,7 +180,8 @@
                     sortable
                     @input="
                       (value) => {
-                        if (typeof value == 'string') filter.group_name.value = value;
+                        if (typeof value == 'string')
+                          filter.group_name.value = value;
                       }
                     "
                     :label-click="
@@ -156,25 +200,38 @@
                     :set-order="setOrder"
                   />
                 </th>
-                <th v-show="columns.action" style="width: 30px;"></th>
+                <th v-show="columns.action && hasAnyPermissionTo(['delete_permission', 'update_permission'])" style="width: 30px"></th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="permissions.data.length" v-for="(permission, index) in permissions.data">
-                <td v-show="columns.id">{{ permission.id }}</td>
+              <tr
+                v-if="permissions.data.length"
+                v-for="(permission, index) in permissions.data"
+              >
+                <td v-show="columns.id">{{ permission.id }} {{ hasAnyPermissionTo(['update_permission', 'delete_permission']) }}</td>
                 <td v-show="columns.name">{{ permission.name }}</td>
                 <td v-show="columns.guard_name">{{ permission.guard_name }}</td>
                 <td v-show="columns.group_name">{{ permission.group_name }}</td>
-                <td v-show="columns.action" class="text-right">
-                  <Dropdown stay :header="permission.name" :id="'permissionindex' + index">
+                <td v-show="columns.action && hasAnyPermissionTo(['update_permission', 'delete_permission'])" class="text-right">
+                  <Dropdown
+                    stay
+                    :header="permission.name"
+                    :id="'permissionindex' + index"
+                  >
                     <Button
+                      v-show="hasPermissionTo('delete_permission')"
                       btnDropdown
                       type="button"
                       @click="deletepermission(permission.delete_url)"
                     >
                       <i class="fa fa-trash"></i> Delete
                     </Button>
-                    <Button btnDropdown type="button" @click="showModal(permission)">
+                    <Button
+                      v-show="hasPermissionTo('update_permission')"
+                      btnDropdown
+                      type="button"
+                      @click="showModal(permission)"
+                    >
                       <i class="fa fa-edit"></i> Edit
                     </Button>
                   </Dropdown>
@@ -182,11 +239,15 @@
               </tr>
               <tr v-else>
                 <td colspan="100%" class="text-center">
-                  <img src="https://blog.rayanehkomak.com/wp-content/uploads/data-not-found.jpg" alt="">
+                  <img
+                    src="https://blog.rayanehkomak.com/wp-content/uploads/data-not-found.jpg"
+                    alt=""
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
+          </div>
           <div v-if="permissions.data.length" class="p-2">
             <Pagination @traped="loadingTable = true" :items="permissions" />
           </div>
@@ -197,53 +258,45 @@
   <Modal id="gate_permission_create_modal" :title="modalTitle" varient="light">
     <template #body>
       <form @submit.prevent="submit" novalidate="novalidate">
+        <Input v-model="form.model" field="model" id="model" label="Model" :form="form"/>
+        
         <div class="form-group">
-          <label for="form_input_name">Name</label>
-          <input
-            v-model="form.name"
+          <label for="form_input_permission">Permissions</label>
+          <select
+            v-model="form.permissions"
             :disabled="form.processing"
-            type="text"
-            name="name"
             class="form-control"
-            :class="{ 'is-invalid': form.errors.name }"
-            id="form_input_name"
-            placeholder="Permission name"
+            :class="{ 'is-invalid': form.errors.permission }"
+            id="form_input_permission"
             aria-describedby="form_input_name-error"
             aria-invalid="true"
-          />
-          <span id="form_input_name-error" class="error invalid-feedback">{{ form.errors.name }}</span>
+            multiple=""
+          >
+            <option value="create">Create</option>
+            <option value="update">Update</option>
+            <option value="delete">Delete</option>
+            <option value="show">Show</option>
+            <option value="access">Access</option>
+          </select>
+          <span id="form_input_name-error" class="error invalid-feedback">{{
+            form.errors.permissions
+          }}</span>
         </div>
-<div class="form-group">
-          <label for="form_input_guard_name">Guard Name</label>
-          <input
-            v-model="form.guard_name"
-            :disabled="form.processing"
-            type="text"
-            name="guard_name"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.guard_name }"
-            id="form_input_guard_name"
-            placeholder="Permission guard name"
-            aria-describedby="form_input_guard_name-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_guard_name-error" class="error invalid-feedback">{{ form.errors.guard_name }}</span>
-        </div>
-<div class="form-group">
-          <label for="form_input_group_name">Group Name</label>
-          <input
-            v-model="form.group_name"
-            :disabled="form.processing"
-            type="text"
-            name="group_name"
-            class="form-control"
-            :class="{ 'is-invalid': form.errors.group_name }"
-            id="form_input_group_name"
-            placeholder="Permission group name"
-            aria-describedby="form_input_group_name-error"
-            aria-invalid="true"
-          />
-          <span id="form_input_group_name-error" class="error invalid-feedback">{{ form.errors.group_name }}</span>
+        
+        <div class="form-group">
+          <label for="form_input_name">Guard</label>
+          <br>
+          <div class="form-check form-check-inline">
+            <input v-model="form.guard_name" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="web">
+            <label class="form-check-label" for="inlineRadio1">Web</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input v-model="form.guard_name" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="admin">
+            <label class="form-check-label" for="inlineRadio2">Admin</label>
+          </div>
+          <span id="form_input_name-error" class="error invalid-feedback">{{
+            form.errors.name
+          }}</span>
         </div>
       </form>
     </template>
@@ -254,14 +307,25 @@
       </Button>
     </template>
   </Modal>
-  <DeleteConfirm :deleteUrl="deleteUrl" item="permission"/>
+  <DeleteConfirm :deleteUrl="deleteUrl" item="permission" />
 </template>
 
 <script>
 import {
-  AdminLayout, Modal, Card, DeleteConfirm, Spinner, Dropdown, Pagination, Filterth, Button, Content, useValidateForm,
+  AdminLayout,
+  Modal,
+  Input,
+  Card,
+  DeleteConfirm,
+  Spinner,
+  Dropdown,
+  Pagination,
+  Filterth,
+  Button,
+  Content,
+  useValidateForm,
 } from "@/Components";
-import toast from '@/Store/toast.js';
+import toast from "@/Store/toast.js";
 import _ from "lodash";
 import { Inertia } from "@inertiajs/inertia";
 import { reactive, ref } from "vue";
@@ -271,7 +335,16 @@ export default {
   name: "Permission",
   layout: AdminLayout,
   components: {
-    Spinner, Modal, Content, DeleteConfirm, Card, Button, Dropdown, Filterth, Pagination,
+    Spinner,
+    Modal,
+    Content,
+    DeleteConfirm,
+    Card,
+    Input,
+    Button,
+    Dropdown,
+    Filterth,
+    Pagination,
   },
   props: {
     permissions: Object,
@@ -280,9 +353,9 @@ export default {
   data() {
     return {
       form: useValidateForm({
-                  name: [null, [isRequired()]],
-          guard_name: [null, [isRequired()]],
-          group_name: [null, [isRequired()]],
+        model: [null, [isRequired()]],
+        permissions: [['create', 'update', 'delete'], [isRequired()]],
+        guard_name: ['web', [isRequired()]],
       }),
 
       filter: reactive({
@@ -294,11 +367,11 @@ export default {
           isActive: this.params.name != null,
           value: this.params.name ?? null,
         },
-guard_name: {
+        guard_name: {
           isActive: this.params.guard_name != null,
           value: this.params.guard_name ?? null,
         },
-group_name: {
+        group_name: {
           isActive: this.params.group_name != null,
           value: this.params.group_name ?? null,
         },
@@ -311,13 +384,13 @@ group_name: {
       }),
       columns: reactive({
         id: true,
-                name: true, 
-        guard_name: true, 
-        group_name: true, 
-        action: true
+        name: true,
+        guard_name: true,
+        group_name: true,
+        action: true,
       }),
 
-      modal: {form: null, confirm: null},
+      modal: { form: null, confirm: null },
       modalTitle: null,
       isEditing: false,
       editUrl: null,
@@ -348,7 +421,7 @@ group_name: {
         }
         if (state.search) query.search = state.search;
         if (state.per_page) query.per_page = state.per_page;
-        
+
         this.getpermissions(query);
       }, 1000),
       deep: true,
@@ -365,7 +438,13 @@ group_name: {
       if (this.filter.order.field != field && this.filter.order.direction) {
         this.filter.order.direction = "asc";
       } else {
-        this.filter.order.direction = !this.filter.order.direction ? "asc" : this.filter.order.direction == "asc" ? "desc" : this.filter.order.direction == "desc" ? null : null;
+        this.filter.order.direction = !this.filter.order.direction
+          ? "asc"
+          : this.filter.order.direction == "asc"
+          ? "desc"
+          : this.filter.order.direction == "desc"
+          ? null
+          : null;
       }
       this.filter.order.field = field;
     },
@@ -378,28 +457,29 @@ group_name: {
         onSuccess: () => {
           this.loadingTable = false;
         },
-        onError: error => {
+        onError: (error) => {
           this.loadingTable = false;
-          let message = '';
-          for(let key in error){
-            message += error[key] + ' ';
+          let message = "";
+          for (let key in error) {
+            message += error[key] + " ";
           }
           toast.add({
-            type: 'error',
-            message
-          })
-        }
+            type: "error",
+            message,
+          });
+        },
       });
     },
     showModal(data = null) {
       this.isEditing = data !== null;
-      this.modalTitle = data == null ? "Create Permission" : "Update Permission";
+      this.modalTitle =
+        data == null ? "Create Permission" : "Update Permission";
       this.form.clearErrors();
       if (this.isEditing) {
         this.editUrl = data.edit_url;
-                  this.form.name = data.name;
-          this.form.guard_name = data.guard_name;
-          this.form.group_name = data.group_name;
+        this.form.name = data.name;
+        this.form.guard_name = data.guard_name;
+        this.form.group_name = data.group_name;
       } else {
         this.form.reset();
       }
@@ -414,6 +494,9 @@ group_name: {
           this.form.reset();
           this.modal.form.hide();
         },
+        onError: error => {
+          console.log(error)
+        }
       });
     },
     update() {
@@ -429,12 +512,11 @@ group_name: {
     deletepermission(url) {
       this.deleteUrl = url;
       this.modal.confirm.show();
-      Inertia.on('finish', () => {
-        this.deleteUrl = null
-        this.modal.confirm.hide()
-      })
+      Inertia.on("finish", () => {
+        this.deleteUrl = null;
+        this.modal.confirm.hide();
+      });
     },
   },
 };
 </script>
-

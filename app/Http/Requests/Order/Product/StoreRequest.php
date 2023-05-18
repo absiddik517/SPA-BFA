@@ -13,7 +13,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return gate_allows('create_product');
     }
 
     /**

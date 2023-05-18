@@ -2,7 +2,7 @@
   <Content>
     <div class="row">
       <div class="col-12">
-        <Card :isTable="true" varient="gray">
+        <Card varient="gray" body-class="p-0">
           <template #title> {{! Title !}} <i v-show="loadingTable" class="fa fa-spinner fa-spin"></i>
           </template>
           <template #title_right>
@@ -42,64 +42,40 @@
               </Dropdown>
             </div>
           </div>
-
-          <table class="table table-hover y-middle">
-            <div v-show="loadingTable" class="overlays">
-              <span>Loading... <i class="fa fa-spin fa-spinner"></i></span>
-            </div>
-            <thead class="bg-gray-1">
-              <tr>
-                <th v-show="columns.id">
-                  <Filterth
-                    field="id"
-                    searchable
-                    sortable
-                    :label-click="
-                      function () {
-                        filter.id.isActive = true;
-                        filter.search = null;
-                      }
-                    "
-                    :close-search-fn="
-                      function () {
-                        filter.id.isActive = false;
-                        filter.id.value = null;
-                      }
-                    "
-                    :filter="filter"
-                    :set-order="setOrder"
-                    @input="
-                      (value) => {
-                        if (typeof value == 'string') filter.id.value = value;
-                      }
-                    "
-                  />
-                </th>
-                {{! table_th !}}
-                <th v-show="columns.action" style="width: 30px;"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="({{! page !}}, index) in {{! pages !}}.data">
-                <td v-show="columns.id">{{ {{! page !}}.id }}</td>
-                {{! table_td !}}
-                <td v-show="columns.action" class="text-right">
-                  <Dropdown stay :header="{{! page !}}.name" :id="'{{! page !}}index' + index">
-                    <Button
-                      btnDropdown
-                      type="button"
-                      @click="delete{{! paGe !}}({{! page !}}.delete_url)"
-                    >
-                      <i class="fa fa-trash"></i> Delete
-                    </Button>
-                    <Button btnDropdown type="button" @click="showModal({{! page !}})">
-                      <i class="fa fa-edit"></i> Edit
-                    </Button>
-                  </Dropdown>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-hover y-middle text-nowrap">
+              <div v-show="loadingTable" class="overlays">
+                <span>Loading... <i class="fa fa-spin fa-spinner"></i></span>
+              </div>
+              <thead class="bg-gray-1">
+                <tr>
+                  <th v-show="columns.id">ID</th>
+                  {{! table_th !}}
+                  <th v-show="columns.action" style="width: 30px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="({{! page !}}, index) in {{! pages !}}.data">
+                  <td v-show="columns.id">{{ {{! page !}}.id }}</td>
+                  {{! table_td !}}
+                  <td v-show="columns.action" class="text-right">
+                    <Dropdown stay :header="{{! page !}}.name" :id="'{{! page !}}index' + index">
+                      <Button
+                        btnDropdown
+                        type="button"
+                        @click="delete{{! paGe !}}({{! page !}}.delete_url)"
+                      >
+                        <i class="fa fa-trash"></i> Delete
+                      </Button>
+                      <Button btnDropdown type="button" @click="showModal({{! page !}})">
+                        <i class="fa fa-edit"></i> Edit
+                      </Button>
+                    </Dropdown>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <div class="p-2">
             <Pagination @traped="loadingTable = true" :items="{{! pages !}}" />
           </div>
@@ -125,7 +101,7 @@
 
 <script>
 import {
-  AdminLayout, Modal, Card, DeleteConfirm, Spinner, Dropdown, Pagination, Filterth, Button, Content, useValidateForm,
+  AdminLayout, Modal, Card, Input, DeleteConfirm, Spinner, Dropdown, Pagination, Filterth, Button, Content, useValidateForm,
 } from "@/Components";
 import toast from '@/Store/toast.js';
 import _ from "lodash";
@@ -137,7 +113,7 @@ export default {
   name: "{{! Title !}}",
   layout: AdminLayout,
   components: {
-    Spinner, Modal, Content, DeleteConfirm, Card, Button, Dropdown, Filterth, Pagination,
+    Spinner, Modal, Input, Content, DeleteConfirm, Card, Button, Dropdown, Filterth, Pagination,
   },
   props: {
     {{! pages !}}: Object,
@@ -150,15 +126,6 @@ export default {
       }),
 
       filter: reactive({
-        id: {
-          isActive: this.params.id != null,
-          value: this.params.id ?? null,
-        },
-        {{! formFilter !}}
-        order: {
-          field: this.params.orderBy ?? null,
-          direction: this.params.orderDirection ?? null,
-        },
         search: this.params.search ?? null,
         per_page: this.params.per_page ?? 5,
       }),
@@ -180,23 +147,6 @@ export default {
     filter: {
       handler: _.debounce(function (state, old) {
         let query = {};
-        if (state.search) {
-          for (const field in this.filter) {
-            if (["order", "search", "per_page"].indexOf(field) != -1) continue;
-            this.filter[field].isActive = false;
-            this.filter[field].value = null;
-          }
-        }
-        for (const field in state) {
-          if (["order", "search", "per_page"].indexOf(field) != -1) continue;
-          if (state[field].value) {
-            query[field] = state[field].value;
-          }
-        }
-        if (state.order.field && state.order.direction) {
-          query.orderBy = state.order.field;
-          query.orderDirection = state.order.direction;
-        }
         if (state.search) query.search = state.search;
         if (state.per_page) query.per_page = state.per_page;
         
@@ -212,14 +162,6 @@ export default {
     this.modal.confirm = new bootstrap.Modal(confirm);
   },
   methods: {
-    setOrder(field) {
-      if (this.filter.order.field != field && this.filter.order.direction) {
-        this.filter.order.direction = "asc";
-      } else {
-        this.filter.order.direction = !this.filter.order.direction ? "asc" : this.filter.order.direction == "asc" ? "desc" : this.filter.order.direction == "desc" ? null : null;
-      }
-      this.filter.order.field = field;
-    },
     get{{! paGes !}}(filter = {}) {
       this.loadingTable = true;
       Inertia.get(this.route("{{! route_name !}}index"), filter, {

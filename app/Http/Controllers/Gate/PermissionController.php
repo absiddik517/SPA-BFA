@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Gate;
 
 use Exception;
 use App\Models\Auth\Permission;
+use App\Models\Auth\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Helper\Traits\Filter;
 use App\Http\Controllers\Controller;
@@ -23,15 +25,26 @@ class PermissionController extends Controller
     }
     
     public function store(StoreRequest $req){
+      if(!gate_allows('create_permission')) abort(403, 'Unauthorized action');
+      $exceptions = [];
       try{
-        Permission::create($req->validated());
+        foreach ($req->permissions as $permission) {
+          Permission::create([
+            'name' => $permission.'_'.strtolower(str_replace(' ', '_', $req->model)),
+            'group_name' => $req->model,
+            'guard_name' => $req->guard_name,
+          ]);
+        }
         $toast = [
           'message' => 'Permission has <kbd>created</kbd> successful!', 
           'type' => 'success'
         ];
       } catch (Exception $e) {
+        $exceptions[] = $e->getMessage();
+      }
+      if(sizeof($exceptions) > 0){
         $toast = [
-          'message' => $e->getMessage(), 
+          'message' => join(', ', $exceptions),
           'type' => 'error'
         ];
       }
@@ -71,5 +84,41 @@ class PermissionController extends Controller
         ];
       }
       return redirect()->back()->with('toast', $toast);
+    }
+    
+    public function permissionForm($id){
+      $role = Role::with('permissions')->find($id);
+      $role_permissions = [];
+      foreach ($role->permissions as $permission){
+        $role_permissions[] = $permission->permission_id;
+      }
+      $perms = Permission::get();
+      $permissions = [];
+      foreach ($perms as $permission){
+        $permissions[$permission->group_name][] = [
+          'id' => $permission->id,
+          'name' => $permission->name,
+          'guard_name' => $permission->guard_name
+        ];
+      }
+      //dd($grouped);
+      return inertia('Gate/PermissionForm')->with([
+        'permissions' => $permissions, 
+        'role_id' => $id,
+        'role_permissions' => $role_permissions,
+        'role_name' => $role->name
+      ]);
+    }
+    
+    public function updateRolePermission($id, Request $req){
+      $response = Role::find($id)->syncPermission($req->permission_id);
+      if($response['type'] == 'success'){
+        User::where('role_id', $id)->select('id')->get()->map(function($user){
+          \DB::table('sessions')
+              ->where('user_id', $user->id)
+              ->delete();
+        });
+      }
+      return redirect()->route('admin.gate.role.index')->with('toast', $response);
     }
 }

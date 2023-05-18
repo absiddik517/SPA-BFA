@@ -2,9 +2,20 @@
   <div class="d-flex justify-content-between align-items-center">
     <div v-show="searchable">
       <div class="relative" v-if="filter[field].isActive">
+        <select 
+          v-if="options"
+          :id="field + '_input'"
+          class="form-control"
+          :value="modelValue"
+          @change="emitInput"
+        >
+          <option value="">Select {{ (label ?? field).toUpperCase() }}</option>
+          <option v-for="option in options" :value="option.value">{{ option.label }}</option>
+        </select>
         <input
-          :value="filter[field].value"
-          @input="emitInput($event.target.value)"
+          v-else
+          :value="modelValue"
+          @input="emitInput"
           :type="inputType"
           class="form-control"
           :placeholder="(label ?? field).toUpperCase()"
@@ -16,6 +27,7 @@
         ></i>
       </div>
       <span class="capitalize searchable" @click="labelClick" v-else>{{ label ?? field }}</span>
+      
     </div>
     
     <div v-show="!searchable">
@@ -41,9 +53,18 @@
 </template>
 
 <script>
+  import Select from '@/Components/Select.vue'
   export default{
     name: 'Filterth',
+    components:{
+      Select
+    
+    },
     props: {
+      modelValue: {
+        type: [String, Number, Array, Object],
+        default: null
+      },
       field: {
         type: String,
         required: true
@@ -73,6 +94,10 @@
         type: Function,
         default: (x) => {}
       },
+      options: {
+        type: [Array, Object],
+        default: null
+      },
       value: String
     },
     
@@ -80,6 +105,7 @@
       return {
         number: ['id'],
         date: ['date'],
+        temp: 'not seted'
       }
     },
     
@@ -93,8 +119,9 @@
     },
     
     methods: {
-      emitInput(value){
-        this.$emit('input', value)
+      emitInput(event){
+        let value = event.target.value
+        this.$emit('update:modelValue', value)
       }
     }
   }

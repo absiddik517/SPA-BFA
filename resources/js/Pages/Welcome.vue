@@ -7,7 +7,7 @@
         <div v-if="canLogin" class="d-flex justify-content-end">
           <div>
             <Link v-if="$page.props.user" :href="route('dashboard')" class="text-muted">
-              Dashboard
+              Dashboard Link
             </Link>
 
             <template v-else>
@@ -43,7 +43,7 @@
                     </div>
                     <div class="ps-3">
                       <div class="mb-2">
-                        <a href="https://laravel.com/docs" class="h5 font-weight-bolder text-dark">Documentation</a>
+                        <a href="https://laravel.com/docs" class="h5 font-weight-bolder text-dark">Laravel Inertia</a>
                       </div>
                       <p class="text-muted small">
                         Laravel has wonderful, thorough documentation covering every aspect of the framework. Whether you are new to the framework or have previous experience with Laravel, we recommend reading all of the documentation from beginning to end.

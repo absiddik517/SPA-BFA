@@ -4,7 +4,7 @@ namespace App\Helper\Traits;
 trait Filter{
   private $fields;
   
-  function getFilterQuery($model, $fields){
+  function getFilterQuery($model, $fields, $with = null){
     $likeFields = $fields['like'] ?? [];
     $equalFields = $fields['equal'] ?? [];
     $this->fields = [...$likeFields, ...$equalFields];
@@ -38,11 +38,16 @@ trait Filter{
         $query->orWhere($field, request()->search);
       }
     }
+    
+    if($with){
+      $query->with($with);
+    }
+    
     return $query;
   }
   
-  public function getFilterData($model, $fields){
-    $query = $this->getFilterQuery($model, $fields);
+  public function getFilterData($model, $fields, $with = null){
+    $query = $this->getFilterQuery($model, $fields, $with);
     if(request()->has('per_page')){
       return $query->paginate(request()->per_page);
     }
